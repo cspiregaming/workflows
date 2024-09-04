@@ -1,0 +1,2 @@
+- name: Better Discord Notification
+  uses: Retr0-01/better-discord-notification@v1.2.0
