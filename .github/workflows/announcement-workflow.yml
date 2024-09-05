@@ -25,26 +25,29 @@ jobs:
           echo "ANNOUNCEMENT_CONTENT=$ANNOUNCEMENT_CONTENT" >> $GITHUB_ENV
           echo "SCHEDULED_DATETIME=$SCHEDULED_DATETIME" >> $GITHUB_ENV
 
-      - name: Validate and Convert Date to Cron Expression
-        id: convert_to_cron
+      - name: Validate Date and Time
+        id: validate_date
         run: |
           # Default placeholders for template check
           TEMPLATE_DATE='<!-- YYYY-MM-DD -->'
           TEMPLATE_TIME='<!-- HH:MM -->'
           
-          # Check if the date or time is the placeholder text
-          if [ "$SCHEDULE_DATE" == "$TEMPLATE_DATE" ] || [ "$SCHEDULE_TIME" == "$TEMPLATE_TIME" ]; then
-            echo "Date or time placeholders detected. Defaulting to current time."
+          # Check if the date or time is the placeholder text or empty
+          if [ "$SCHEDULE_DATE" == "$TEMPLATE_DATE" ] || [ "$SCHEDULE_DATE" == "" ] || [ "$SCHEDULE_TIME" == "$TEMPLATE_TIME" ] || [ "$SCHEDULE_TIME" == "" ]; then
+            echo "Placeholders or empty values detected. Defaulting to current time."
             SCHEDULED_DATETIME=$(date '+%Y-%m-%d %H:%M')
           elif ! date -d "$SCHEDULED_DATETIME" >/dev/null 2>&1; then
             echo "Invalid date format detected. Defaulting to current time."
             SCHEDULED_DATETIME=$(date '+%Y-%m-%d %H:%M')
           fi
           
-          # Convert the valid or fallback date to cron expression
+          echo "SCHEDULED_DATETIME=$SCHEDULED_DATETIME" >> $GITHUB_ENV
+
+      - name: Convert Date to Cron Expression
+        id: convert_to_cron
+        run: |
           CRON_EXPRESSION=$(date -d "$SCHEDULED_DATETIME" '+%M %H %d %m *')
           echo "CRON_EXPRESSION=$CRON_EXPRESSION" >> $GITHUB_ENV
-          echo "SCHEDULED_DATETIME=$SCHEDULED_DATETIME" >> $GITHUB_ENV
 
       - name: Schedule Workflow
         run: |
