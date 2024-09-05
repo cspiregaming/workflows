@@ -23,7 +23,7 @@ jobs:
           echo "Issue Title: $ISSUE_TITLE"
           echo "Issue Body: $ISSUE_BODY"
       - name: Send Announcement
-        uses: C-Spire-Gaming/discord-announcements-embed
+        uses: C-Spire-Gaming/discord-announcements-embed@main
         with:
           webhook-url: ${{ secrets.CI_DISCORD_ANNOUNCEMENT_CHANNEL }} # It is recommended to store your webhooks using actions secrets
           msg-content: $ISSUE_BODY
