@@ -1,10 +1,11 @@
 ---
 name: Scheduled Announcement
 about: Use this template to create a new scheduled announcement.
-title: "[Announcement] "
+title: "Announcement Title"
 labels: scheduled
 assignees: ${{ github.actor }}
 ---
+<!-- DO NOT REMOVE SECTION HEADERS -->
 
 ### Announcement Content
 <!-- Describe the content of your announcement -->
