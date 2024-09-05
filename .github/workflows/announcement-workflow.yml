@@ -1,0 +1,30 @@
+name: Discord Announcement
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  Notify:
+    runs-on: ubuntu-latest
+    name: Send Announcement
+    steps:
+      - name: Get Issue Contents
+        id: get_issue_contents
+        run: |
+          ISSUE_TITLE="${{ github.event.issue.title }}"
+          ISSUE_BODY="${{ github.event.issue.body }}"
+
+          echo "ISSUE_TITLE=$ISSUE_TITLE" >> $GITHUB_ENV
+          echo "ISSUE_BODY=$ISSUE_BODY" >> $GITHUB_ENV
+
+      - name: Display Issue Contents
+        run: |
+          echo "Issue Title: $ISSUE_TITLE"
+          echo "Issue Body: $ISSUE_BODY"
+      - name: Send Announcement
+        uses: C-Spire-Gaming/discord-announcements-embed
+        with:
+          webhook-url: ${{ secrets.CI_DISCORD_ANNOUNCEMENT_CHANNEL }} # It is recommended to store your webhooks using actions secrets
+          msg-content: $ISSUE_BODY
+          ignore-hidden: 'false'
