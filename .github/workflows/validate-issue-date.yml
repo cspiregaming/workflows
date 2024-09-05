@@ -13,7 +13,6 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const { context, github } = require('@actions/github');
             const issueBody = context.payload.issue.body;
             const now = new Date();
             const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
@@ -41,7 +40,7 @@ jobs:
 
             // Update the issue if necessary
             if (updatedBody !== issueBody) {
-              await github.issues.update({
+              await github.rest.issues.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.issue.number,
