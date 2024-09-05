@@ -116,4 +116,4 @@ jobs:
         uses: C-Spire-Gaming/discord-announcements-embed@main
         with:
           webhook-url: ${{ secrets.CI_DISCORD_WEBHOOK }}  # Webhook stored in secrets for security
-          msg-content: ${{ env.ISSUE_TITLE }}  # Use the extracted issue title for message content
+          msg-content: "This is an official C Spire Gaming announcement"
