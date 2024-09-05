@@ -1,4 +1,4 @@
-name: Discord Notification
+name: Commit Notification
 
 on:
   push:
@@ -10,10 +10,9 @@ jobs:
     name: Send Notification
     steps:
       - name: Send Notification
-        uses: Retr0-01/better-discord-notification@main
+        uses: C-Spire-Gaming/discord-announcements-embed
         with:
           webhook-url: ${{ secrets.CI_DISCORD_WEBHOOK }} # It is recommended to store your webhooks using actions secrets
-          msg-content: 'test notification'
+          msg-content: 'A new commit has been pushed to C-Spire-Gaming/workflows'
           embed-color: '3093151'
-          footer-icon: 'https://cdn.discordapp.com/attachments/712252851283296260/961953852897255454/706526933973860412.png'
           ignore-hidden: 'false'
