@@ -13,6 +13,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
+            // Retrieve the issue body from the context
             const issueBody = context.payload.issue.body;
             const now = new Date();
             const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
