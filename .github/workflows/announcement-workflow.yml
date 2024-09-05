@@ -25,11 +25,19 @@ jobs:
           echo "ANNOUNCEMENT_CONTENT=$ANNOUNCEMENT_CONTENT" >> $GITHUB_ENV
           echo "SCHEDULED_DATETIME=$SCHEDULED_DATETIME" >> $GITHUB_ENV
 
-      - name: Convert Date to Cron Expression
+      - name: Validate and Convert Date to Cron Expression
         id: convert_to_cron
         run: |
-          CRON_EXPRESSION=$(date -d "${{ env.SCHEDULED_DATETIME }}" '+%M %H %d %m *')
+          # Check if the scheduled datetime is valid, else use current time
+          if ! date -d "${{ env.SCHEDULED_DATETIME }}" >/dev/null 2>&1; then
+            echo "Invalid date format detected. Defaulting to current time."
+            SCHEDULED_DATETIME=$(date '+%Y-%m-%d %H:%M')
+          fi
+          
+          # Convert the valid or fallback date to cron expression
+          CRON_EXPRESSION=$(date -d "$SCHEDULED_DATETIME" '+%M %H %d %m *')
           echo "CRON_EXPRESSION=$CRON_EXPRESSION" >> $GITHUB_ENV
+          echo "SCHEDULED_DATETIME=$SCHEDULED_DATETIME" >> $GITHUB_ENV
 
       - name: Schedule Workflow
         run: |
