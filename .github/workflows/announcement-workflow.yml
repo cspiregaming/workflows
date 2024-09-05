@@ -117,4 +117,3 @@ jobs:
         with:
           webhook-url: ${{ secrets.CI_DISCORD_WEBHOOK }}  # Webhook stored in secrets for security
           msg-content: ${{ env.ISSUE_TITLE }}  # Use the extracted issue title for message content
-          ignore-hidden: 'false'  # Set ignore-hidden to false explicitly
