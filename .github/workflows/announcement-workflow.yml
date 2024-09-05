@@ -25,6 +25,6 @@ jobs:
       - name: Send Announcement
         uses: C-Spire-Gaming/discord-announcements-embed@main
         with:
-          webhook-url: ${{ secrets.CI_DISCORD_ANNOUNCEMENT_CHANNEL }} # It is recommended to store your webhooks using actions secrets
-          msg-content: $ISSUE_BODY
+          webhook-url: ${{ secrets.CI_DISCORD_WEBHOOK }} # It is recommended to store your webhooks using actions secrets
+          msg-content: $ISSUE_TITLE
           ignore-hidden: 'false'
