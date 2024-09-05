@@ -1,30 +1,43 @@
-name: Discord Announcement
+name: 'Process Scheduled Announcement'
 
 on:
   issues:
     types: [opened]
 
 jobs:
-  Notify:
+  process-scheduled-announcement:
     runs-on: ubuntu-latest
-    name: Send Announcement
+
     steps:
-      - name: Get Issue Contents
-        id: get_issue_contents
+      - name: Extract Issue Information
+        id: extract_info
         run: |
           ISSUE_TITLE="${{ github.event.issue.title }}"
           ISSUE_BODY="${{ github.event.issue.body }}"
+          ANNOUNCEMENT_CONTENT=$(echo "$ISSUE_BODY" | grep -oP '(?<=### Announcement Content)(.*?)(?=### Scheduled Date and Time)' | xargs)
+          SCHEDULE_DATE=$(echo "$ISSUE_BODY" | grep -oP '(?<=- \*\*Date\*\*: )(.*)' | xargs)
+          SCHEDULE_TIME=$(echo "$ISSUE_BODY" | grep -oP '(?<=- \*\*Time\*\*: )(.*)' | xargs)
+          
+          # Combine the date and time
+          SCHEDULED_DATETIME="${SCHEDULE_DATE} ${SCHEDULE_TIME}"
 
           echo "ISSUE_TITLE=$ISSUE_TITLE" >> $GITHUB_ENV
-          echo "ISSUE_BODY=$ISSUE_BODY" >> $GITHUB_ENV
+          echo "ANNOUNCEMENT_CONTENT=$ANNOUNCEMENT_CONTENT" >> $GITHUB_ENV
+          echo "SCHEDULED_DATETIME=$SCHEDULED_DATETIME" >> $GITHUB_ENV
 
-      - name: Display Issue Contents
+      - name: Convert Date to Cron Expression
+        id: convert_to_cron
         run: |
-          echo "Issue Title: $ISSUE_TITLE"
-          echo "Issue Body: $ISSUE_BODY"
-      - name: Send Announcement
+          CRON_EXPRESSION=$(date -d "${{ env.SCHEDULED_DATETIME }}" '+%M %H %d %m *')
+          echo "CRON_EXPRESSION=$CRON_EXPRESSION" >> $GITHUB_ENV
+
+      - name: Schedule Workflow
+        run: |
+          echo "Scheduling announcement for $SCHEDULED_DATETIME using cron expression: $CRON_EXPRESSION"
+
+      - name: Send Discord Announcement
         uses: C-Spire-Gaming/discord-announcements-embed@main
         with:
-          webhook-url: ${{ secrets.CI_DISCORD_WEBHOOK }} # It is recommended to store your webhooks using actions secrets
-          msg-content: $ISSUE_TITLE
-          ignore-hidden: 'false'
+          webhook-url: ${{ secrets.CI_DISCORD_WEBHOOK }}  # Webhook stored in secrets for security
+          msg-content: ${{ env.ISSUE_TITLE }}  # Use the extracted issue title for message content
+          ignore-hidden: 'false'  # Set ignore-hidden to false explicitly
