@@ -28,8 +28,15 @@ jobs:
       - name: Validate and Convert Date to Cron Expression
         id: convert_to_cron
         run: |
-          # Check if the scheduled datetime is valid, else use current time
-          if ! date -d "${{ env.SCHEDULED_DATETIME }}" >/dev/null 2>&1; then
+          # Default placeholders for template check
+          TEMPLATE_DATE='<!-- YYYY-MM-DD -->'
+          TEMPLATE_TIME='<!-- HH:MM -->'
+          
+          # Check if the date or time is the placeholder text
+          if [ "$SCHEDULE_DATE" == "$TEMPLATE_DATE" ] || [ "$SCHEDULE_TIME" == "$TEMPLATE_TIME" ]; then
+            echo "Date or time placeholders detected. Defaulting to current time."
+            SCHEDULED_DATETIME=$(date '+%Y-%m-%d %H:%M')
+          elif ! date -d "$SCHEDULED_DATETIME" >/dev/null 2>&1; then
             echo "Invalid date format detected. Defaulting to current time."
             SCHEDULED_DATETIME=$(date '+%Y-%m-%d %H:%M')
           fi
