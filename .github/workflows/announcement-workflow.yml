@@ -14,7 +14,7 @@ jobs:
         run: |
           ISSUE_TITLE="${{ github.event.issue.title }}"
           ISSUE_BODY="${{ github.event.issue.body }}"
-          ANNOUNCEMENT_CONTENT=$(echo "$ISSUE_BODY" | grep -oP '(?<=### Announcement Content)(.*?)(?=### Scheduled Date and Time)' | xargs)
+          ANNOUNCEMENT_CONTENT=$(echo "$ISSUE_BODY" | grep -oP '(?<=### Announcement Content)(.*?)(?=### Additional Information)' | xargs)
           SCHEDULE_DATE=$(echo "$ISSUE_BODY" | grep -oP '(?<=- \*\*Date\*\*: )(.*)' | xargs)
           SCHEDULE_TIME=$(echo "$ISSUE_BODY" | grep -oP '(?<=- \*\*Time\*\*: )(.*)' | xargs)
           
@@ -40,13 +40,21 @@ jobs:
             echo "Invalid date format detected. Defaulting to current time."
             SCHEDULED_DATETIME=$(date '+%Y-%m-%d %H:%M')
           fi
-          
+
           echo "SCHEDULED_DATETIME=$SCHEDULED_DATETIME" >> $GITHUB_ENV
 
       - name: Convert Date to Cron Expression
         id: convert_to_cron
         run: |
-          CRON_EXPRESSION=$(date -d "$SCHEDULED_DATETIME" '+%M %H %d %m *')
+          # Generate a cron expression from the validated date and time
+          CRON_EXPRESSION=$(date -d "$SCHEDULED_DATETIME" '+%M %H %d %m *' 2>/dev/null)
+          
+          # Check if cron expression was successfully generated
+          if [ -z "$CRON_EXPRESSION" ]; then
+            echo "Error generating cron expression. Defaulting to current time."
+            CRON_EXPRESSION=$(date '+%M %H %d %m *')
+          fi
+
           echo "CRON_EXPRESSION=$CRON_EXPRESSION" >> $GITHUB_ENV
 
       - name: Schedule Workflow
