@@ -25,10 +25,16 @@ jobs:
           echo "ANNOUNCEMENT_CONTENT=$ANNOUNCEMENT_CONTENT" >> $GITHUB_ENV
           echo "SCHEDULED_DATETIME=$SCHEDULED_DATETIME" >> $GITHUB_ENV
 
+      - name: Debugging Info
+        id: debug_info
+        run: |
+          echo "SCHEDULE_DATE=${{ env.SCHEDULE_DATE }}"
+          echo "SCHEDULE_TIME=${{ env.SCHEDULE_TIME }}"
+          echo "SCHEDULED_DATETIME=${{ env.SCHEDULED_DATETIME }}"
+
       - name: Validate Date and Time
         id: validate_date
         run: |
-          # Default placeholders for template check
           TEMPLATE_DATE='<!-- YYYY-MM-DD -->'
           TEMPLATE_TIME='<!-- HH:MM -->'
           
@@ -46,7 +52,6 @@ jobs:
       - name: Convert Date to Cron Expression
         id: convert_to_cron
         run: |
-          # Generate a cron expression from the validated date and time
           CRON_EXPRESSION=$(date -d "$SCHEDULED_DATETIME" '+%M %H %d %m *' 2>/dev/null)
           
           # Check if cron expression was successfully generated
