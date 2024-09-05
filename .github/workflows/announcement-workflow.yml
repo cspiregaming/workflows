@@ -7,6 +7,7 @@ on:
 jobs:
   process-scheduled-announcement:
     runs-on: ubuntu-latest
+    needs: validate-issue-date
 
     steps:
       - name: Extract Issue Information

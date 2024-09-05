@@ -10,6 +10,7 @@ jobs:
 
     steps:
       - name: Validate Date Time Values
+        id: validate-issue-date
         uses: actions/github-script@v6
         with:
           script: |
