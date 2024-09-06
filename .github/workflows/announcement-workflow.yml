@@ -21,6 +21,7 @@ jobs:
           # Combine date and time
           SCHEDULED_DATETIME="${SCHEDULE_DATE} ${SCHEDULE_TIME}"
 
+          # Export the variables to be used in the next steps
           echo "ANNOUNCEMENT_CONTENT=$ANNOUNCEMENT_CONTENT" >> $GITHUB_ENV
           echo "ADDITIONAL_INFO=$ADDITIONAL_INFO" >> $GITHUB_ENV
           echo "SCHEDULED_DATETIME=$SCHEDULED_DATETIME" >> $GITHUB_ENV
@@ -29,7 +30,7 @@ jobs:
         id: validate_date
         run: |
           if ! date -d "$SCHEDULED_DATETIME" >/dev/null 2>&1; then
-            echo "Invalid date/time format, defaulting to current time."
+            echo "Invalid date/time format detected, defaulting to current time."
             SCHEDULED_DATETIME=$(date '+%Y-%m-%d %H:%M')
           fi
           echo "SCHEDULED_DATETIME=$SCHEDULED_DATETIME" >> $GITHUB_ENV
@@ -38,5 +39,6 @@ jobs:
         uses: C-Spire-Gaming/discord-announcements-embed@main
         with:
           webhook-url: ${{ secrets.CI_DISCORD_WEBHOOK }}
-          msg-content: ${{ env.ANNOUNCEMENT_CONTENT }}
+          announcement-content: ${{ env.ANNOUNCEMENT_CONTENT }}
+          additional-info: ${{ env.ADDITIONAL_INFO }}
           scheduled-time: ${{ env.SCHEDULED_DATETIME }}
