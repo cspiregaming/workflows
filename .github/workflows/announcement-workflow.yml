@@ -60,7 +60,8 @@ jobs:
         run: |
           ISSUE_TITLE="${{ github.event.issue.title }}"
           ISSUE_BODY="${{ github.event.issue.body }}"
-          ANNOUNCEMENT_CONTENT=$(echo "$ISSUE_BODY" | grep -oP '(?<=### Announcement Content)(.*?)(?=### Additional Information)' | xargs)
+          ANNOUNCEMENT_CONTENT=$(echo "$ISSUE_BODY" | grep -oP '(?<=### Announcement Content\s)(.*?)(?=\n###)' | xargs)
+          ADDITIONAL_INFO=$(echo "$ISSUE_BODY" | grep -oP '(?<=### Additional Information\s)(.*?)(?=\n|$)' | xargs)
           SCHEDULE_DATE=$(echo "$ISSUE_BODY" | grep -oP '(?<=- \*\*Date\*\*: )(.*)' | xargs)
           SCHEDULE_TIME=$(echo "$ISSUE_BODY" | grep -oP '(?<=- \*\*Time\*\*: )(.*)' | xargs)
           
@@ -69,6 +70,7 @@ jobs:
 
           echo "ISSUE_TITLE=$ISSUE_TITLE" >> $GITHUB_ENV
           echo "ANNOUNCEMENT_CONTENT=$ANNOUNCEMENT_CONTENT" >> $GITHUB_ENV
+          echo "ADDITIONAL_INFO=$ADDITIONAL_INFO" >> $GITHUB_ENV
           echo "SCHEDULED_DATETIME=$SCHEDULED_DATETIME" >> $GITHUB_ENV
 
       - name: Debugging Info
