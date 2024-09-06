@@ -1,21 +1,20 @@
 ---
 name: Scheduled Announcement
-about: Use this template to create a new scheduled announcement.
+about: Schedule a new Discord announcement.
 title: "Announcement Title"
 labels: scheduled
 assignees: ${{ github.actor }}
 ---
-<!-- DO NOT REMOVE SECTION HEADERS -->
 
 ### Announcement Content
 <!-- Describe the content of your announcement -->
 {content}
 
+### Additional Information
+<!-- Any extra info for the announcement -->
+{extra}
+
 ### Scheduled Date and Time
-<!-- Please provide the date and time for the announcement in format: YYYY-MM-DD HH:MM (24-hour format) -->
+<!-- Format: YYYY-MM-DD HH:MM (24-hour) -->
 - **Date**: {date} <!-- YYYY-MM-DD -->
 - **Time**: {time} <!-- HH:MM -->
-
-### Additional Information
-<!-- Any additional context or information for the announcement -->
-{extra}

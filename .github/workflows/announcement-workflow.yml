@@ -5,117 +5,38 @@ on:
     types: [opened]
 
 jobs:
-  update-issue:
+  process-announcement:
     runs-on: ubuntu-latest
-
-    steps:
-      - name: Validate Date Time Values
-        id: validate-issue-date
-        uses: actions/github-script@v6
-        with:
-          script: |
-            // Retrieve the issue body from the context
-            const issueBody = context.payload.issue.body;
-            const now = new Date();
-            const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
-            const currentTime = now.toTimeString().split(' ')[0].substring(0, 5); // HH:MM
-
-            // Define regex patterns to match placeholders and check if the date and time are missing
-            const datePattern = /- \*\*Date\*\*: \{(\d{4}-\d{2}-\d{2})\}/;
-            const timePattern = /- \*\*Time\*\*: \{(\d{2}:\d{2})\}/;
-
-            // Check if placeholders are found and missing
-            const isDateMissing = !datePattern.test(issueBody);
-            const isTimeMissing = !timePattern.test(issueBody);
-
-            let updatedBody = issueBody;
-
-            // Replace missing date with the current date
-            if (isDateMissing) {
-              updatedBody = updatedBody.replace(/- \*\*Date\*\*: \{.*?\}/, `- **Date**: ${currentDate}`);
-            }
-
-            // Replace missing time with the current time
-            if (isTimeMissing) {
-              updatedBody = updatedBody.replace(/- \*\*Time\*\*: \{.*?\}/, `- **Time**: ${currentTime}`);
-            }
-
-            // Update the issue if necessary
-            if (updatedBody !== issueBody) {
-              await github.rest.issues.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: updatedBody
-              });
-            }
-
-  process-scheduled-announcement:
-    runs-on: ubuntu-latest
-    needs: update-issue
 
     steps:
       - name: Extract Issue Information
         id: extract_info
         run: |
-          ISSUE_TITLE="${{ github.event.issue.title }}"
           ISSUE_BODY="${{ github.event.issue.body }}"
           ANNOUNCEMENT_CONTENT=$(echo "$ISSUE_BODY" | grep -oP '(?<=### Announcement Content\s)(.*?)(?=\n###)' | xargs)
-          ADDITIONAL_INFO=$(echo "$ISSUE_BODY" | grep -oP '(?<=### Additional Information\s)(.*?)(?=\n|$)' | xargs)
           SCHEDULE_DATE=$(echo "$ISSUE_BODY" | grep -oP '(?<=- \*\*Date\*\*: )(.*)' | xargs)
           SCHEDULE_TIME=$(echo "$ISSUE_BODY" | grep -oP '(?<=- \*\*Time\*\*: )(.*)' | xargs)
-          
-          # Combine the date and time
+          ADDITIONAL_INFO=$(echo "$ISSUE_BODY" | grep -oP '(?<=### Additional Information\s)(.*?)(?=\n|$)' | xargs)
+
+          # Combine date and time
           SCHEDULED_DATETIME="${SCHEDULE_DATE} ${SCHEDULE_TIME}"
 
-          echo "ISSUE_TITLE=$ISSUE_TITLE" >> $GITHUB_ENV
           echo "ANNOUNCEMENT_CONTENT=$ANNOUNCEMENT_CONTENT" >> $GITHUB_ENV
           echo "ADDITIONAL_INFO=$ADDITIONAL_INFO" >> $GITHUB_ENV
           echo "SCHEDULED_DATETIME=$SCHEDULED_DATETIME" >> $GITHUB_ENV
 
-      - name: Debugging Info
-        id: debug_info
-        run: |
-          echo "SCHEDULE_DATE=${{ env.SCHEDULE_DATE }}"
-          echo "SCHEDULE_TIME=${{ env.SCHEDULE_TIME }}"
-          echo "SCHEDULED_DATETIME=${{ env.SCHEDULED_DATETIME }}"
-
       - name: Validate Date and Time
         id: validate_date
         run: |
-          TEMPLATE_DATE='<!-- YYYY-MM-DD -->'
-          TEMPLATE_TIME='<!-- HH:MM -->'
-          
-          # Check if the date or time is the placeholder text or empty
-          if [ "$SCHEDULE_DATE" == "$TEMPLATE_DATE" ] || [ "$SCHEDULE_DATE" == "" ] || [ "$SCHEDULE_TIME" == "$TEMPLATE_TIME" ] || [ "$SCHEDULE_TIME" == "" ]; then
-            echo "Placeholders or empty values detected. Defaulting to current time."
-            SCHEDULED_DATETIME=$(date '+%Y-%m-%d %H:%M')
-          elif ! date -d "$SCHEDULED_DATETIME" >/dev/null 2>&1; then
-            echo "Invalid date format detected. Defaulting to current time."
+          if ! date -d "$SCHEDULED_DATETIME" >/dev/null 2>&1; then
+            echo "Invalid date/time format, defaulting to current time."
             SCHEDULED_DATETIME=$(date '+%Y-%m-%d %H:%M')
           fi
-
           echo "SCHEDULED_DATETIME=$SCHEDULED_DATETIME" >> $GITHUB_ENV
 
-      - name: Convert Date to Cron Expression
-        id: convert_to_cron
-        run: |
-          CRON_EXPRESSION=$(date -d "$SCHEDULED_DATETIME" '+%M %H %d %m *' 2>/dev/null)
-          
-          # Check if cron expression was successfully generated
-          if [ -z "$CRON_EXPRESSION" ]; then
-            echo "Error generating cron expression. Defaulting to current time."
-            CRON_EXPRESSION=$(date '+%M %H %d %m *')
-          fi
-
-          echo "CRON_EXPRESSION=$CRON_EXPRESSION" >> $GITHUB_ENV
-
-      - name: Schedule Workflow
-        run: |
-          echo "Scheduling announcement for $SCHEDULED_DATETIME using cron expression: $CRON_EXPRESSION"
-
-      - name: Send Discord Announcement
+      - name: Schedule and Send Discord Announcement
         uses: C-Spire-Gaming/discord-announcements-embed@main
         with:
-          webhook-url: ${{ secrets.CI_DISCORD_WEBHOOK }}  # Webhook stored in secrets for security
-          msg-content: "This is an official C Spire Gaming announcement"
+          webhook-url: ${{ secrets.CI_DISCORD_WEBHOOK }}
+          msg-content: ${{ env.ANNOUNCEMENT_CONTENT }}
+          scheduled-time: ${{ env.SCHEDULED_DATETIME }}
