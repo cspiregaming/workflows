@@ -2,7 +2,7 @@
 
 ## [commit-notifications](/.github/workflows/commit-notifications.yml)
 
-This workflow logs commits to this repository in [#bot-logs](https://discord.com/channels/379707231077138442/379709425126211586).
+This workflow logs commits to this repository in [#bot-logs][bot-logs] (accessible to mods and admins only).
 
 ## [announcement-workflow](/.github/workflows/announcement-workflow.yml)
 
@@ -12,3 +12,4 @@ To use this workflow, [create an issue with the New Scheduled Announcement templ
 
 [community-events]:https://discord.com/channels/379707231077138442/1120920847700475975
 [template-url]:https://github.com/C-Spire-Gaming/workflows/issues/new?assignees=%24%7B%7B+github.actor+%7D%7D&labels=scheduled&projects=&template=new-scheduled-announcement.md&title=Announcement+Title
+[bot-logs]:https://discord.com/channels/379707231077138442/379709425126211586
