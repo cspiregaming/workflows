@@ -1,9 +1,5 @@
 # workflows
 
-## [commit-notifications](/.github/workflows/commit-notifications.yml)
-
-This workflow logs commits to this repository in [#bot-logs][bot-logs] (accessible to mods and admins only).
-
 ## [announcement-workflow](/.github/workflows/announcement-workflow.yml)
 
 This workflow was written to provide a repeatable, automated method of scheduling announcements to the [community-events][community-events] Discord Announcement channel in the [C Spire Gaming server](https://discord.gg/cspiregaming).
